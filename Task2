@@ -1,0 +1,107 @@
+import datetime
+
+class LibraryItem:
+    def __init__(self, title, author, category):
+        self.title = title
+        self.author = author
+        self.category = category
+        self.is_checked_out = False
+        self.due_date = None
+
+    def check_out(self, days=14):
+        if not self.is_checked_out:
+            self.is_checked_out = True
+            self.due_date = datetime.date.today() + datetime.timedelta(days=days)
+            print(f"{self.title} checked out until {self.due_date}.")
+        else:
+            print(f"{self.title} is already checked out.")
+
+    def return_item(self):
+        if self.is_checked_out:
+            overdue_days = (datetime.date.today() - self.due_date).days
+            self.is_checked_out = False
+            self.due_date = None
+            if overdue_days > 0:
+                fine = self.calculate_fine(overdue_days)
+                print(f"{self.title} returned with a fine of ${fine:.2f}.")
+            else:
+                print(f"{self.title} returned on time. No fine.")
+        else:
+            print(f"{self.title} is not checked out.")
+
+    def calculate_fine(self, overdue_days):
+        return overdue_days * 0.50
+
+    def __str__(self):
+        status = "Checked out" if self.is_checked_out else "Available"
+        return f"{self.title} by {self.author} [{self.category}] - {status}"
+
+
+class Library:
+    def __init__(self):
+        self.items = []
+
+    def add_item(self, item):
+        self.items.append(item)
+        print(f"{item.title} added to the library.")
+
+    def search_items(self, keyword, search_by='title'):
+        results = []
+        keyword = keyword.lower()
+        for item in self.items:
+            if search_by == 'title' and keyword in item.title.lower():
+                results.append(item)
+            elif search_by == 'author' and keyword in item.author.lower():
+                results.append(item)
+            elif search_by == 'category' and keyword in item.category.lower():
+                results.append(item)
+        return results
+
+    def display_items(self, items=None):
+        if items is None:
+            items = self.items
+        for item in items:
+            print(item)
+
+    def check_out_item(self, title):
+        for item in self.items:
+            if item.title.lower() == title.lower():
+                item.check_out()
+                return
+        print(f"Item with title '{title}' not found.")
+
+    def return_item(self, title):
+        for item in self.items:
+            if item.title.lower() == title.lower():
+                item.return_item()
+                return
+        print(f"Item with title '{title}' not found.")
+
+
+
+library = Library()
+
+book1 = LibraryItem("The Great Gatsby", "F. Scott Fitzgerald", "Book")
+dvd1 = LibraryItem("Inception", "Christopher Nolan", "DVD")
+magazine1 = LibraryItem("National Geographic", "Various", "Magazine")
+
+library.add_item(book1)
+library.add_item(dvd1)
+library.add_item(magazine1)
+
+
+print("\nSearch results for 'great':")
+results = library.search_items("great")
+library.display_items(results)
+
+
+print("\nChecking out 'The Great Gatsby':")
+library.check_out_item("The Great Gatsby")
+
+
+print("\nReturning 'The Great Gatsby':")
+library.return_item("The Great Gatsby")
+
+
+print("\nAll library items:")
+library.display_items()
